@@ -1,0 +1,138 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <chrono>
+
+using namespace std;
+using namespace chrono;
+
+class GraphTraversal
+{
+private:
+    int vertices;
+    vector<vector<int>> connections;
+
+public:
+
+    GraphTraversal(int n)
+    {
+        vertices = n;
+        connections.resize(vertices);
+    }
+
+    void connect(int a, int b)
+    {
+        connections[a].push_back(b);
+        connections[b].push_back(a);
+    }
+
+    // Recursive DFS
+    void exploreDFS(int current, vector<bool>& marked)
+    {
+        marked[current] = true;
+        cout << current << " ";
+
+        for (int next : connections[current])
+        {
+            if (!marked[next])
+            {
+                exploreDFS(next, marked);
+            }
+        }
+    }
+
+    void runDFS(int source)
+    {
+        vector<bool> marked(vertices, false);
+        exploreDFS(source, marked);
+    }
+
+    // Iterative BFS
+    void runBFS(int source)
+    {
+        vector<bool> marked(vertices, false);
+        queue<int> pending;
+
+        marked[source] = true;
+        pending.push(source);
+
+        while (!pending.empty())
+        {
+            int current = pending.front();
+            pending.pop();
+
+            cout << current << " ";
+
+            for (int next : connections[current])
+            {
+                if (!marked[next])
+                {
+                    marked[next] = true;
+                    pending.push(next);
+                }
+            }
+        }
+    }
+};
+
+int main()
+{
+    int vertexCount, edgeCount;
+
+    cout << "Enter number of vertices: ";
+    cin >> vertexCount;
+
+    GraphTraversal graph(vertexCount);
+
+    cout << "Enter number of edges: ";
+    cin >> edgeCount;
+
+    cout << "Enter edges (u v):\n";
+
+    for (int i = 0; i < edgeCount; ++i)
+    {
+        int first, second;
+        cin >> first >> second;
+
+        graph.connect(first, second);
+    }
+
+    int source;
+    cout << "Enter starting vertex: ";
+    cin >> source;
+
+
+    // ---------------- DFS ---------------- //
+
+    auto dfsBegin = high_resolution_clock::now();
+
+    cout << "\nDFS Traversal: ";
+    graph.runDFS(source);
+
+    auto dfsFinish = high_resolution_clock::now();
+
+    auto dfsDuration =
+        duration_cast<nanoseconds>(dfsFinish - dfsBegin);
+
+
+    // ---------------- BFS ---------------- //
+
+    auto bfsBegin = high_resolution_clock::now();
+
+    cout << "\n\nBFS Traversal: ";
+    graph.runBFS(source);
+
+    auto bfsFinish = high_resolution_clock::now();
+
+    auto bfsDuration =
+        duration_cast<nanoseconds>(bfsFinish - bfsBegin);
+
+
+    // ---------------- OUTPUT ---------------- //
+
+    cout << "\n\nExecution Time:";
+    cout << "\nDFS: " << dfsDuration.count() << " ns";
+    cout << "\nBFS: " << bfsDuration.count() << " ns";
+
+    return 0;
+}
