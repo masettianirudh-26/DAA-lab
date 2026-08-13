@@ -1,0 +1,167 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <chrono>
+#include <algorithm>
+
+using namespace std;
+using namespace chrono;
+
+//--------------- MAX HEAP FUNCTIONS ---------------//
+
+void buildMaxHeap(vector<int>& data, int size, int root)
+{
+    int maxIndex = root;
+    int childLeft = 2 * root + 1;
+    int childRight = 2 * root + 2;
+
+    if (childLeft < size && data[childLeft] > data[maxIndex])
+        maxIndex = childLeft;
+
+    if (childRight < size && data[childRight] > data[maxIndex])
+        maxIndex = childRight;
+
+    if (maxIndex != root)
+    {
+        swap(data[root], data[maxIndex]);
+        buildMaxHeap(data, size, maxIndex);
+    }
+}
+
+void performMaxHeapSort(vector<int>& data)
+{
+    int size = static_cast<int>(data.size());
+
+    for (int i = size / 2 - 1; i >= 0; --i)
+        buildMaxHeap(data, size, i);
+
+    for (int last = size - 1; last > 0; --last)
+    {
+        swap(data[0], data[last]);
+        buildMaxHeap(data, last, 0);
+    }
+}
+
+
+//--------------- MIN HEAP FUNCTIONS ---------------//
+
+void buildMinHeap(vector<int>& data, int size, int root)
+{
+    int minIndex = root;
+    int childLeft = 2 * root + 1;
+    int childRight = 2 * root + 2;
+
+    if (childLeft < size && data[childLeft] < data[minIndex])
+        minIndex = childLeft;
+
+    if (childRight < size && data[childRight] < data[minIndex])
+        minIndex = childRight;
+
+    if (minIndex != root)
+    {
+        swap(data[root], data[minIndex]);
+        buildMinHeap(data, size, minIndex);
+    }
+}
+
+void performMinHeapSort(vector<int>& data)
+{
+    int size = static_cast<int>(data.size());
+
+    for (int i = size / 2 - 1; i >= 0; --i)
+        buildMinHeap(data, size, i);
+
+    for (int last = size - 1; last > 0; --last)
+    {
+        swap(data[0], data[last]);
+        buildMinHeap(data, last, 0);
+    }
+
+    reverse(data.begin(), data.end());
+}
+
+
+//--------------- MAIN FUNCTION ---------------//
+
+int main()
+{
+    int n;
+
+    cout << "Enter number of elements: ";
+    cin >> n;
+
+    vector<int> numbers(n);
+
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+    // Generate random numbers
+    for (int& value : numbers)
+        value = rand() % 100000;
+
+    // Create separate copies
+    vector<int> maxData(numbers);
+    vector<int> minData(numbers);
+
+
+    //--------------- MAX HEAP SORT ---------------//
+
+    auto maxStart = high_resolution_clock::now();
+
+    performMaxHeapSort(maxData);
+
+    auto maxEnd = high_resolution_clock::now();
+
+
+    //--------------- MIN HEAP SORT ---------------//
+
+    auto minStart = high_resolution_clock::now();
+
+    performMinHeapSort(minData);
+
+    auto minEnd = high_resolution_clock::now();
+
+
+    //--------------- MAX HEAP TIME ---------------//
+
+    auto maxNano =
+        duration_cast<nanoseconds>(maxEnd - maxStart);
+
+    auto maxMicro =
+        duration_cast<microseconds>(maxEnd - maxStart);
+
+    auto maxMilli =
+        duration_cast<milliseconds>(maxEnd - maxStart);
+
+    duration<double> maxSeconds =
+        maxEnd - maxStart;
+
+
+    //--------------- MIN HEAP TIME ---------------//
+
+    auto minNano =
+        duration_cast<nanoseconds>(minEnd - minStart);
+
+    auto minMicro =
+        duration_cast<microseconds>(minEnd - minStart);
+
+    auto minMilli =
+        duration_cast<milliseconds>(minEnd - minStart);
+
+    duration<double> minSeconds =
+        minEnd - minStart;
+
+
+    //--------------- DISPLAY RESULTS ---------------//
+
+    cout << "\n========== MAX HEAP SORT ==========\n";
+    cout << "Nanoseconds  : " << maxNano.count() << " ns\n";
+    cout << "Microseconds : " << maxMicro.count() << " us\n";
+
+
+    cout << "\n========== MIN HEAP SORT ==========\n";
+    cout << "Nanoseconds  : " << minNano.count() << " ns\n";
+    cout << "Microseconds : " << minMicro.count() << " us\n";
+
+    return 0;
+}
